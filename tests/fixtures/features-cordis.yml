@@ -1,0 +1,33 @@
+- id: storage
+  name: '@deepseek-ai/dsh-storage'
+- id: sessions
+  name: '@deepseek-ai/dsh-session'
+- id: projections
+  name: '@deepseek-ai/dsh-session-projection'
+- id: agents
+  name: '@deepseek-ai/dsh-agent'
+- id: prompt
+  name: '@deepseek-ai/dsh-system-prompt'
+- id: tools
+  name: '@deepseek-ai/dsh-tools'
+- id: native-executor
+  name: '@deepseek-ai/dsh-tool-executor-native'
+- id: speech
+  name: '@deepseek-ai/dsh-experimental-speech-to-text'
+  config:
+    defaultProvider: qq-local-fixture
+- id: features-external
+  name: ./features-external.mjs
+- id: domains
+  name: '@deepseek-ai/dsh-storage-domain'
+  config:
+    backend: qq-features-fixture
+- id: super-agent-io
+  name: ../../../dsh-super-agent-io/index.mjs
+  config:
+    enabled: true
+    sendEnabled: false
+- id: qq-bridge-001
+  name: ../../lib/host.js
+  config:
+    networkAccess: true

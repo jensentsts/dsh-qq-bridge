@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "QQ bridge",
+    "description": "Isolated QQ transport derived from Yuuyuko-uu/dsh-qq-link; native reply, cold preload and bounded IO. Sending is disabled by default."
+  }
+}

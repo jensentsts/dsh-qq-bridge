@@ -1,5 +1,8 @@
 node_modules/
+dist/
+.cordis/
+.test-output/
+coverage/
 *.log
-.DS_Store
-Thumbs.db
-开发者备忘.md
+.env
+.env.*

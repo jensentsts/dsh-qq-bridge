@@ -1,27 +1,49 @@
 {
-  "name": "dsh-qq-link",
-  "version": "1.6.0",
-  "description": "通到 QQ：DSH 里的 AI 伙伴和 QQ 双向互通 —— 它说完话自动发到 QQ，你在 QQ 里说的话自动转进 DSH。走 OneBot 11 HTTP（SnowLuma / NapCat 都行）。",
+  "name": "dsh-qq-bridge",
+  "version": "0.0.1",
+  "description": "Isolated QQ transport fork of Yuuyuko-uu/dsh-qq-link, with native reply and bounded super-agent IO integration.",
   "license": "SEE LICENSE IN LICENSE",
+  "author": "Yuuyuko-uu (https://github.com/Yuuyuko-uu)",
+  "contributors": [
+    "Local independent-plugin adaptation (2026)"
+  ],
+  "type": "module",
   "engines": {
     "node": ">=22",
-    "dsh": ">=0.2.1-rc.2"
+    "dsh": ">=0.2.2-rc.1"
   },
-  "type": "module",
-  "main": "lib/host.js",
+  "main": "./lib/host.js",
   "exports": {
     ".": "./lib/host.js",
     "./client": "./lib/client.js",
+    "./adapter": "./lib/onebot.mjs",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
     "./package.json": "./package.json"
   },
   "files": [
     "lib",
+    "legacy",
+    "tools",
+    "locale",
+    "icon.svg",
     "cordis.patch.yml",
     "README.md",
-    "CHANGELOG.md",
     "LICENSE",
-    "tools"
+    "PROVENANCE.json",
+    "README-HISTORY.md",
+    "SECOND-INCREMENT.md",
+    "build.mjs"
   ],
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node tests/run.mjs"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "~3.19.0",
+    "zod": "^4.1.0",
+    "@deepseek-ai/dsh-storage-domain": "0.2.2-rc.1"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
@@ -29,33 +51,32 @@
     "client": {
       "platform": "web",
       "inject": [
-        "slots"
-      ],
-      "external": [
-        "react"
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-locale"
       ]
-    },
-    "compatibility": {
-      "dshReleases": {
-        "0.2.1-rc.3": "compatible"
-      }
     }
   },
-  "author": "Yuuyuko-uu (https://github.com/Yuuyuko-uu)",
+  "upstream": {
+    "name": "dsh-qq-link",
+    "version": "1.5.4",
+    "repository": "https://github.com/Yuuyuko-uu/dsh-qq-link",
+    "author": "Yuuyuko-uu",
+    "license": "Yuuyuko-uu 插件许可 1.2"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yuuyuko-uu/dsh-qq-link.git"
+    "url": "git+https://github.com/jensentsts/dsh-qq-bridge.git"
   },
-  "homepage": "https://github.com/Yuuyuko-uu/dsh-qq-link#readme",
+  "homepage": "https://github.com/jensentsts/dsh-qq-bridge#readme",
   "bugs": {
-    "url": "https://github.com/Yuuyuko-uu/dsh-qq-link/issues"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
+    "url": "https://github.com/jensentsts/dsh-qq-bridge/issues"
   },
   "keywords": [
+    "dsh",
+    "dsh-plugin",
     "deepseek-harness",
-    "dsh-plugin"
+    "ai-agent",
+    "qq",
+    "onebot"
   ]
 }

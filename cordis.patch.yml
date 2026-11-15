@@ -1,4 +1,5 @@
-# DSH「通到 QQ」—— 大肥鱼在 DSH 说的话，自动发到 QQ（先做 DSH→QQ 这半）
+# Derived from Yuuyuko-uu/dsh-qq-link. See LICENSE and README.
+# No old QQ entry is enabled/disabled here; the operator coordinates the non-duplicating switch.
 - insert:
-    - id: qq-bridge
-      name: 'dsh-qq-link'
+    - id: qq-bridge-001
+      name: dsh-qq-bridge

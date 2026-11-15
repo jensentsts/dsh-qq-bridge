@@ -1,0 +1,71 @@
+{
+  "fork": {
+    "name": "dsh-qq-bridge",
+    "version": "0.0.1",
+    "author": "Yuuyuko-uu",
+    "license": "Yuuyuko-uu 插件许可 1.2",
+    "repositoryIsProvenanceOnly": true
+  },
+  "baseline": {
+    "package": "dsh-qq-link",
+    "version": "1.5.4",
+    "source": "Locally installed dsh-qq-link 1.5.4",
+    "repository": "https://github.com/Yuuyuko-uu/dsh-qq-link",
+    "sha256": {
+      "lib/host.js": "eba62db82130d4db26a31ef124add9e70e17cd8bea43a5811a35ef129da0cc14",
+      "lib/client.js": "01f550982abbc04909ec781c0e9e3c83942e8426a8bf42fb1838df6c7e31d27e",
+      "LICENSE": "99f2936547f528cda00db26b3db26b65afc7d6118b920e45c066fa5bea3a9bce"
+    },
+    "preserved": [
+      "VOICE OUTBOUND PATCH host1176-1264",
+      "Qzone tool dedupe keyed by session ID and exact Agent instance",
+      "ASR/media helpers and original feature source",
+      "full custom LICENSE 1.2, author and source comments"
+    ]
+  },
+  "transplant": {
+    "source": "Local dsh-qq-link 1.5.2 checkout",
+    "version": "1.5.2",
+    "hostRange": "2475-2505",
+    "behavior": "running -> steer, idle or steer unavailable -> awaited followup",
+    "sha256": {
+      "lib/host.js": "171f2f19116a2be1475f406c648d6c23405cb60d0ba54339b42e76c13db236f6",
+      "tests/inbound-steer.mjs": "d9a06015e3c462f83582ff18211b55633090950386a2636923faf6cad586cd0d"
+    }
+  },
+  "isolation": {
+    "entry": "qq-bridge-001",
+    "module": "dsh-qq-bridge",
+    "routePrefix": "/dsh-qq-bridge-001",
+    "storageDomain": "qq_bridge_001",
+    "transport": "qq-bridge-001",
+    "legacyEntry": "not auto-mounted; mock-only"
+  },
+  "runtimeRead": {
+    "version": "0.2.2-rc.1",
+    "path": "DSH desktop runtime 0.2.2-rc.1",
+    "clientInspect": "timed out locally; settings slot exact contract relayed by the operator from live Inspect"
+  },
+  "changes": [
+    "Removed all upstream selfupdate imports/registration and automatic update/install Client UI",
+    "New transport delegates all Agent scheduling/history to superAgentIo v1",
+    "Eight settings groups with optional resourcePicker v1",
+    "Bounded native OneBot quote, top-level file-only, unsplit real assistant outputs",
+    "Fail-closed owner management authentication and signed external webhook",
+    "Isolated durable transport sidecar and credential storage",
+    "Legacy baseline retained for migration and offline regression, no legacy live transport activation",
+    "Binding model/effort native-wins/binding-once/off with durable selecting/applied receipts",
+    "Optional quota next-distinct-input switching with durable budget, exclusive-source/partial/tool guards and no replay",
+    "Optional bounded additional replies delegated only to superAgentIo continuation"
+  ],
+  "verification": {
+    "installed": false,
+    "realExternalMessages": false,
+    "visual": false,
+    "offlineCommandNode": "Node.js v24.16.0"
+  },
+  "icon": {
+    "file": "icon.svg",
+    "origin": "new geometric bridge drawing for this fork; not QQ/Tencent branding"
+  }
+}
