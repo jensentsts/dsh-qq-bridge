@@ -16,14 +16,14 @@ if (upstream) {
   React = (await import(pathToFileURL(resolve(upstream, 'node_modules/.pnpm/react@18.3.1/node_modules/react/index.js')))).default
   ;({ JSDOM } = await import(pathToFileURL(resolve(upstream, 'node_modules/.pnpm/jsdom@29.1.1_@noble+hashes@2.4.0/node_modules/jsdom/lib/api.js'))))
 }
-async function setup({ withPicker = false, fail = false, networkEnabled = false } = {}) {
+async function setup({ withPicker = false, fail = false, networkEnabled = false, initialConfig } = {}) {
   const dom = new JSDOM('<!doctype html><html><body><main id="root"></main></body></html>', { url: 'http://localhost/' })
   const previous = { window: globalThis.window, document: globalThis.document, navigator: globalThis.navigator, IS_REACT_ACT_ENVIRONMENT: globalThis.IS_REACT_ACT_ENVIRONMENT }
   globalThis.window = dom.window; globalThis.document = dom.window.document; globalThis.IS_REACT_ACT_ENVIRONMENT = true
   Object.defineProperty(globalThis, 'navigator', { value: dom.window.navigator, configurable: true })
   ReactDom ??= await import(pathToFileURL(resolve(upstream, 'node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/client.js')))
   let entry, dictionaries, optional
-  let settings = normalizeConfig({ bindings: [{ endpoint: 'private:123', sessionId: 's', enabled: false }] })
+  let settings = normalizeConfig(initialConfig ?? { bindings: [{ endpoint: 'private:123', sessionId: 's', enabled: false }] })
   let hostPreset = 'danger-full-access'
   const calls = [], pickCalls = [], disposers = [], pending = new Map()
   const ctx = { locale: { bind: () => key => dictionaries.en[key] || key, register: (_, value) => { dictionaries = value; return () => {} } }, effect(fn) { const off = fn(); disposers.push(off); return off }, inject(deps, callback) { optional = callback }, slots: { inject: (_, fn) => fn(), register: (options, Component) => { entry = { options, Component }; return () => { entry = undefined } } } }
@@ -131,7 +131,7 @@ test('QQ message behavior combines input and output and saves ordered fallback c
     await ui.select('Admission mode', 'queue')
     await ui.click('Model & quota')
     await ui.select('Quota exhaustion strategy', 'next-input')
-    assert.equal(document.querySelector('[role=tabpanel] textarea'), null)
+    assert.equal(document.querySelectorAll('[role=tabpanel] textarea').length, 1)
     await ui.select('Choose model', '["p","m1"]')
     await ui.select('Reasoning effort', 'high')
     await ui.click('Add candidate')
@@ -143,6 +143,26 @@ test('QQ message behavior combines input and output and saves ordered fallback c
     assert.deepEqual(ui.state().bindings[0].quotaPolicy.candidates, [
       { provider: 'p', model: 'm2' }, { provider: 'p', model: 'm1', reasoningEffort: 'high' },
     ])
+  } finally { await ui.close() }
+})
+test('balance reply and DeepSeek peak response settings can be edited and saved', { skip: !upstream }, async () => {
+  const ui = await setup({ initialConfig: { bindings: [{ endpoint: 'group:123', sessionId: 's', enabled: false }] } })
+  try {
+    await ui.click('Model & quota')
+    assert.equal(ui.field('Message when model balance is exhausted').querySelector('textarea').value, '(T_T)白饭吃干净了……')
+    await ui.type('Message when model balance is exhausted', '等我充好饭卡再来。')
+    await ui.click('Save settings')
+    assert.equal(ui.state().quotaReply, '等我充好饭卡再来。')
+    await ui.click('Message behavior')
+    ui.openDetails('Rules for a QQ chat')
+    await ui.toggle('Follow DeepSeek peak hours')
+    await ui.type('Peak-hour response chance (%)', '35')
+    await ui.type('Minimum peak response interval (seconds)', '25')
+    await ui.type('Minimum off-peak response interval (seconds)', '3')
+    await ui.click('Save settings')
+    assert.equal(ui.state().bindings[0].priceSchedule.peakProbability, 35)
+    assert.equal(ui.state().bindings[0].priceSchedule.peakCooldownMs, 25000)
+    assert.equal(ui.state().bindings[0].priceSchedule.offPeakCooldownMs, 3000)
   } finally { await ui.close() }
 })
 test('QQ test panel selects a saved chat and starts send and receive only from their buttons', { skip: !upstream }, async () => {

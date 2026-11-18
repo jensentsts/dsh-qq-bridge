@@ -23,6 +23,31 @@ async function fixture(extra = {}) {
   await bridge.start()
   return { bridge, io, store, calls, received, preloads, bindings, transport: () => transport, delivery: (id = 'd', content = text('未改动。！？\n\n[QQ]原样[/QQ]')) => ({ deliveryId: id, bindingId: settings.bindings[0].id, endpoint: 'private:123', replyTo: '41', traceIds: ['t'], reply: { sessionId: 's', seq: 3, messageId: id, source: { kind: 'model', provider: 'real', model: 'real' }, content } }) }
 }
+test('balance reply is configurable, limited to direct inputs and sent once per message', async () => {
+  const quotaPolicy = { reconcile: async () => {}, arm: async () => {}, beforeInput: async () => {}, dispose: async () => {} }
+  const f = await fixture({ quotaPolicy })
+  const binding = f.bridge.config.bindings[0]
+  assert.equal(f.bridge.config.quotaReply, '(T_T)白饭吃干净了……')
+  await f.bridge.receive(msg())
+  await f.bridge.sendQuotaNotice({ bindingId: binding.id, externalMessageId: '41' })
+  await f.bridge.sendQuotaNotice({ bindingId: binding.id, externalMessageId: '41' })
+  const sent = f.calls.filter(call => call[0] === 'send_private_msg')
+  assert.equal(sent.length, 1)
+  assert.deepEqual(sent[0][1].message, [{ type: 'text', data: { text: '(T_T)白饭吃干净了……' } }])
+  await f.bridge.dispose()
+
+  const group = await fixture({ quotaPolicy, config: { enabled: true, sendEnabled: true, quotaReply: '稍后再聊', bindings: [{ endpoint: 'group:456', sessionId: 's', enabled: true, sendEnabled: true }] } })
+  const groupBinding = group.bridge.config.bindings[0]
+  await group.bridge.receive(msg({ message_type: 'group', group_id: 456, user_id: 123, message_id: 51, message: [{ type: 'text', data: { text: '普通群消息' } }] }))
+  await group.bridge.sendQuotaNotice({ bindingId: groupBinding.id, externalMessageId: '51' })
+  assert.equal(group.calls.filter(call => call[0] === 'send_group_msg').length, 0)
+  await group.bridge.receive(msg({ message_type: 'group', group_id: 456, user_id: 123, message_id: 52, message: [{ type: 'at', data: { qq: '999' } }, { type: 'text', data: { text: '你好' } }] }))
+  await group.bridge.sendQuotaNotice({ bindingId: groupBinding.id, externalMessageId: '52' })
+  const sentGroup = group.calls.filter(call => call[0] === 'send_group_msg')
+  assert.equal(sentGroup.length, 1)
+  assert.deepEqual(sentGroup[0][1].message, [{ type: 'text', data: { text: '稍后再聊' } }])
+  await group.bridge.dispose()
+})
 test('OneBot private/group identity is strict and numeric precision cannot silently change recipient', () => {
   assert.deepEqual(parseEndpoint('group:123'), { kind: 'group', id: '123' })
   assert.throws(() => parseEndpoint('group:123/456')); assert.throws(() => normalizeEvent(msg({ message_id: 1e20 })))

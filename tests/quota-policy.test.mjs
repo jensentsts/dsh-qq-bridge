@@ -12,9 +12,9 @@ function turn({ local = false, partial = false, tool = false, code = 'QUOTA_EXCE
   return events.map((event, seq) => ({ ...event, seq }))
 }
 async function setup(extra = {}) {
-  let current = old, observe, logs = turn(), binding = { id: 'b', sessionId: 's', enabled: true, quotaPolicy: { mode: 'next-input', maxSwitches: 1, candidates: [next] } }
+  let current = old, observe, logs = turn(), binding = extra.binding ?? { id: 'b', sessionId: 's', enabled: true, quotaPolicy: { mode: 'next-input', maxSwitches: 1, candidates: [next] } }
   const calls = [], store = extra.store ?? new MemoryQqStore(), agent = { id: 's', status: 'idle', session: { snapshotEvents: () => logs }, model: { current: () => current, select: value => { calls.push(value); current = value } } }
-  const options = { resolveAgent: async () => ({ agent }), liveAgent: () => agent, catalog: async () => ({ groups: [{ id: 'p', models: [{ id: 'next', reasoning: { efforts: [{ id: 'high' }] } }] }] }), store, binding: () => binding, watch: (_, fn) => { observe = fn; return () => {} } }
+  const options = { resolveAgent: async () => ({ agent }), liveAgent: () => agent, catalog: async () => ({ groups: [{ id: 'p', models: [{ id: 'next', reasoning: { efforts: [{ id: 'high' }] } }] }] }), store, binding: () => binding, notice: extra.notice, watch: (_, fn) => { observe = fn; return () => {} } }
   const policy = new QuotaPolicy(options); await policy.arm(binding)
   return { policy, options, calls, store, binding: () => binding, changeBinding: value => { binding = value }, agent, native: value => { current = value }, logs: value => { logs = value }, observe: event => observe(event), failure: async values => { logs = turn(values); logs.find(event => event.type === 'request/header').data.header.config = current; await observe(logs.at(-1)) } }
 }
@@ -46,4 +46,45 @@ test('durable switch budget survives restart and selecting ambiguity cannot auto
   const record = await f.store.quotaResult('b'); await f.store.recordQuotaResult('b', { ...record, state: 'selecting' })
   const uncertain = new QuotaPolicy(f.options); await uncertain.arm(f.binding()); assert.equal((await uncertain.beforeInput(f.binding(), '100')).state, 'selecting'); assert.equal(f.calls.length, 1)
   await f.policy.dispose(); await replacement.dispose(); await uncertain.dispose()
+})
+
+test('balance notices follow a replacement failure and exclude ordinary rate limits', async () => {
+  const notices = [], f = await setup({ notice: async value => notices.push(value) })
+  await f.failure()
+  assert.equal(notices.length, 0)
+  await f.policy.beforeInput(f.binding(), '42')
+  await f.failure({ number: 2, code: 'RATE_LIMITED' })
+  assert.equal(notices.length, 0)
+  await f.failure({ number: 3, code: 'INSUFFICIENT_BALANCE' })
+  assert.deepEqual(notices.map(row => row.externalMessageId), ['41'])
+  await f.policy.dispose()
+})
+
+test('a binding without model fallback still observes an actual balance failure', async () => {
+  const notices = [], f = await setup({ binding: { id: 'b', sessionId: 's', enabled: true }, notice: async value => notices.push(value) })
+  await f.failure({ code: 'QUOTA' })
+  await f.failure({ number: 2, code: 'ACCOUNT_QUOTA' })
+  await f.failure({ number: 3, code: 'RATE_LIMIT' })
+  assert.deepEqual(notices.map(row => row.externalMessageId), ['41', '41'])
+  await f.policy.dispose()
+})
+
+test('a reused model header from an earlier turn still identifies the failed model', async () => {
+  const notices = [], f = await setup({ binding: { id: 'b', sessionId: 's', enabled: true }, notice: async value => notices.push(value) })
+  const rows = turn({ code: 'QUOTA', number: 4 })
+  const header = rows.splice(2, 1)[0]
+  rows.unshift(header)
+  rows.forEach((row, seq) => { row.seq = seq })
+  f.logs(rows)
+  await f.observe(rows.at(-1))
+  assert.deepEqual(notices.map(row => row.externalMessageId), ['41'])
+  await f.policy.dispose()
+})
+
+test('an explicitly selected fallback model also receives a balance notice', async () => {
+  const notices = [], f = await setup({ notice: async value => notices.push(value) })
+  f.native(next)
+  await f.failure({ code: 'QUOTA' })
+  assert.deepEqual(notices.map(row => row.externalMessageId), ['41'])
+  await f.policy.dispose()
 })
