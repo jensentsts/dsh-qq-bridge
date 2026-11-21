@@ -1,5 +1,16 @@
 # QQ 桥接
 
+## 从 GitHub 直接安装
+
+在 DSH 的「插件 → 安装第三方插件」粘贴以下地址并安装：
+
+```text
+https://github.com/jensentsts/dsh-qq-bridge/archive/refs/heads/main.tar.gz
+```
+
+安装前请先安装消息路由插件。
+
+
 > 插件集导航与市场索引：https://github.com/jensentsts/dsh-independent-plugins
 
 
@@ -19,13 +30,13 @@
 
 ## 安装和配置
 
-此包以 DSH `0.2.2-rc.1` 为开发基准，需要同仓库的 [消息路由插件](https://github.com/jensentsts/dsh-message-router)；[资源选择器](https://github.com/jensentsts/dsh-resource-picker)可选。安装前在本目录运行：
+此包以 DSH `0.2.2-rc.1` 为开发基准，需要 [消息路由插件](https://github.com/jensentsts/dsh-message-router)；[资源选择器](https://github.com/jensentsts/dsh-resource-picker)可选。开发者如需生成本地安装目录，可在仓库中运行：
 
 ```sh
 node build.mjs
 ```
 
-使用 DSH 创造模式中的官方插件管理器安装生成的 `dist` 目录，重启 DSH 后在「QQ 桥接」设置连接 OneBot，并按需要添加会话绑定。OneBot 服务需自行部署和登录。
+通过上方 GitHub 地址可直接安装；也可使用官方插件管理器安装本地生成的 `dist` 目录。重启 DSH 后在「QQ 桥接」设置连接 OneBot，并按需要添加会话绑定。OneBot 服务需自行部署和登录。
 
 具体接口、早期开发记录及版本对应关系见 [开发记录](README-HISTORY.md) 和 [来源记录](PROVENANCE.json)。
 

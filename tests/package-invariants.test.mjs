@@ -8,7 +8,7 @@ const read = name => readFileSync(resolve(root, name), 'utf8')
 test('fork keeps exact full LICENSE, author and first-screen source attribution', () => {
   if (installed) assert.equal(read('LICENSE'), readFileSync(resolve(installed, 'LICENSE'), 'utf8'))
   const packageJson = JSON.parse(read('package.json')), first = read('README.md').slice(0, 1200)
-  assert.equal(packageJson.name, 'dsh-qq-bridge'); assert.equal(packageJson.version, '0.0.1'); assert.match(packageJson.author, /Yuuyuko-uu/); assert.match(packageJson.license, /LICENSE/)
+  assert.equal(packageJson.name, 'dsh-qq-bridge'); assert.equal(packageJson.version, '0.0.2'); assert.match(packageJson.author, /Yuuyuko-uu/); assert.match(packageJson.license, /LICENSE/)
   assert.match(first, /派生自 https:\/\/github.com\/Yuuyuko-uu\/dsh-qq-link/); assert.match(first, /原作者 Yuuyuko-uu/)
 })
 test('baseline hashes are independently rechecked, installed voice and exact-Agent Qzone dedupe survived targeted merge', { skip: !installed }, () => {

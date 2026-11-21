@@ -1,6 +1,6 @@
 {
   "name": "dsh-qq-bridge",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Isolated QQ transport fork of Yuuyuko-uu/dsh-qq-link, with native reply and bounded super-agent IO integration.",
   "license": "SEE LICENSE IN LICENSE",
   "author": "Yuuyuko-uu (https://github.com/Yuuyuko-uu)",

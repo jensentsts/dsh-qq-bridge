@@ -1,7 +1,7 @@
 {
   "fork": {
     "name": "dsh-qq-bridge",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "author": "Yuuyuko-uu",
     "license": "Yuuyuko-uu 插件许可 1.2",
     "repositoryIsProvenanceOnly": true
